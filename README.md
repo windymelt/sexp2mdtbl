@@ -28,3 +28,11 @@ $ sexp2mdtbl < processed_file
 | `he` |      | need |      |
 | `she` | need |      | need |
 | `they` |      | need | need |
+
+## Installation
+
+Roswell is recommended.
+
+```shell
+$ ros install windymelt/sexp2mdtbl
+```
