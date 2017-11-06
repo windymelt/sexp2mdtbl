@@ -1,0 +1,39 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#| Adhoc S-exp formatting tool
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp (ql:quickload '(:alexandria :cl-ppcre) :silent t)
+  )
+
+(defpackage :ros.script.sexp2mdtbl.3718946503
+  (:use :cl :alexandria))
+(in-package :ros.script.sexp2mdtbl.3718946503)
+
+(defun collect-columns (sexp)
+  (let ((cols (make-hash-table :test 'equal)))
+    (loop for def in sexp do
+             (loop for col in (cdr def)
+                   do (setf (gethash col cols) :t)))
+    (alexandria:hash-table-keys cols)))
+
+(defun print-table (sexp)
+  "Parse a sexp alike ((row1 arg1 arg2 arg3) (row2 arg4 arg5 arg6) ...) and
+   print it as markdown table represents ARGs occurrence per ROW."
+  (let ((columns (collect-columns sexp)))
+    (princ (cl-ppcre:regex-replace-all "\\|\\|" (format nil "~^|~{ `~S` ~^|~}|~%" (cons "" columns)) "∨"))
+    (format t "~^|~{------~*~^|~}|~%" (cons "" columns))
+    (loop for row in sexp
+          do (format t "~^|~{ ~A ~^|~}|~%"
+                     (cons (format nil "`~a`" (car row))
+                           (loop for col in columns
+                                 collect (if (find col (cdr row)) "need" "    ")))))))
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+  (setf (readtable-case *readtable*) :preserve) ; keep case sensitive
+  (print-table (read)))
+
+;;; vim: set ft=lisp lisp:
