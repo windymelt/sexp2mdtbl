@@ -29,7 +29,7 @@ exec ros -Q -- $0 "$@"
           do (format t "~^|~{ ~A ~^|~}|~%"
                      (cons (format nil "`~a`" (car row))
                            (loop for col in columns
-                                 collect (if (find col (cdr row)) "need" "    ")))))))
+                                 collect (if (find col (cdr row) :test 'equal) "need" "    ")))))))
 
 (defun main (&rest argv)
   (declare (ignorable argv))
